@@ -1,3 +1,4 @@
+[![codecov](https://codecov.io/gh/ucsb-cs156-w22/team02-w22-6pm-2/branch/main/graph/badge.svg?token=tKHJsd6u9n)](https://codecov.io/gh/ucsb-cs156-w22/team02-w22-6pm-2)
 # starter-team02: dsre-v2
 
 Storybook is here:
