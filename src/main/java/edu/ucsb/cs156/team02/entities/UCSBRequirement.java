@@ -18,24 +18,15 @@ import lombok.Builder;
 @NoArgsConstructor
 @Builder
 @Entity(name = "ucsb_requirements")
-public class UCSBRequirement{
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
-    private int courseCount;
-    private int units;
-    private boolean inactive;
-    private String requirementCode;
-    private String requirementTranslation;
-    private String collegeCode;
-    private String objCode;
-
-
-    // This establishes that many todos can belong to one user
-    // Only the user_id is stored in the table, and through it we
-    // can access the user's details
-  
-    /*@ManyToOne
-    @JoinColumn(name = "user_id")
-   */
+public class UCSBRequirement {
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private long id;
+  private String requirementCode;
+  private String requirementTranslation;
+  private String collegeCode;
+  private String objCode;
+  private int courseCount;
+  private int units;
+  private boolean inactive;
 }
