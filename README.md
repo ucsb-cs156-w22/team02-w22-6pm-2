@@ -1,6 +1,11 @@
 [![codecov](https://codecov.io/gh/ucsb-cs156-w22/team02-w22-6pm-2/branch/main/graph/badge.svg?token=tKHJsd6u9n)](https://codecov.io/gh/ucsb-cs156-w22/team02-w22-6pm-2)
 # starter-team02: dsre-v2
 
+Heroku Apps:
+
+* prod: <https://team02-w22-6pm-2.herokuapp.com/>
+* qa: <https://team02-w22-6pm-2-docs-qa.herokuapp.com/>
+
 Storybook is here:
 - Production: https://ucsb-cs156-w22.github.io/team02-w22-6pm-2-docs/storybook
 
