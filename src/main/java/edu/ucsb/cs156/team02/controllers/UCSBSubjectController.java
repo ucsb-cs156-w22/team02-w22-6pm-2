@@ -34,8 +34,6 @@ import java.util.Optional;
 @Slf4j
 public class UCSBSubjectController extends ApiController {
 
-    
-
     @Autowired
     UCSBSubjectRepository ucsbSubjectRepository;
 
@@ -50,7 +48,6 @@ public class UCSBSubjectController extends ApiController {
         Iterable<UCSBSubject> ucsbSubject = ucsbSubjectRepository.findAll();
         return ucsbSubject;
     }
-
 
     public class UCSBSubjectOrError {
         Long id;
@@ -75,8 +72,6 @@ public class UCSBSubjectController extends ApiController {
         }
         return soe;
     }
-
-
 
     public UCSBSubjectOrError doesUCSBSubjectExist2(UCSBSubjectOrError soe) {
 
@@ -109,7 +104,26 @@ public class UCSBSubjectController extends ApiController {
         return ResponseEntity.ok().body(body);
     }
 
+    @ApiOperation(value = "Update a single ucsbSubject")
+    @PreAuthorize("hasRole('ROLE_USER')")
+    @PutMapping("")
+    public ResponseEntity<String> putTodoById(
+            @ApiParam("id") @RequestParam Long id,
+            @RequestBody @Valid UCSBSubject incomingUCSBSubject) throws JsonProcessingException {
+        loggingService.logMethod();
 
+        UCSBSubjectOrError uoe = new UCSBSubjectOrError(id);
+
+        uoe = doesUCSBSubjectExist(uoe);
+        if (uoe.error != null) {
+            return uoe.error;
+        }
+
+        ucsbSubjectRepository.save(incomingUCSBSubject);
+
+        String body = mapper.writeValueAsString(incomingUCSBSubject);
+        return ResponseEntity.ok().body(body);
+    }
 
 
     @ApiOperation(value = "Create a new Subject")
