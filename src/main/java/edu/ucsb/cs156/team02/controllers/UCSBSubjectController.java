@@ -150,6 +150,7 @@ public class UCSBSubjectController extends ApiController {
             @ApiParam("id") @RequestParam Long id) {
         loggingService.logMethod();
 
+
         UCSBSubjectOrError soe = new UCSBSubjectOrError(id);
 
         soe = doesUCSBSubjectExist2(soe);
