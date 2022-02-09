@@ -3,7 +3,6 @@ package edu.ucsb.cs156.team02.controllers;
 import edu.ucsb.cs156.team02.entities.UCSBSubject;
 import edu.ucsb.cs156.team02.entities.User;
 import edu.ucsb.cs156.team02.models.CurrentUser;
-import edu.ucsb.cs156.team02.repositories.TodoRepository;
 import edu.ucsb.cs156.team02.repositories.UCSBSubjectRepository;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -34,25 +33,23 @@ import java.util.Optional;
 @Slf4j
 public class UCSBSubjectController extends ApiController {
 
-    
-
     @Autowired
-    UCSBSubjectRepository UCSBSubjectRepository;
+    UCSBSubjectRepository ucsbSubjectRepository;
 
     @Autowired
     ObjectMapper mapper;
 
-    @ApiOperation(value = "List all subjects")
+    @ApiOperation(value = "List all subjects in database")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/all")
     public Iterable<UCSBSubject> allUCSBSubjects() {
         loggingService.logMethod();
-        Iterable<UCSBSubject> ucsbSubject = UCSBSubjectRepository.findAll();
+        Iterable<UCSBSubject> ucsbSubject = ucsbSubjectRepository.findAll();
         return ucsbSubject;
     }
 
 
-    @ApiOperation(value = "Create a new Subject")
+    @ApiOperation(value = "Add new subject to database")
     @PreAuthorize("hasRole('ROLE_USER')")
     @PostMapping("/post")
     public UCSBSubject postUCSBSubject(
@@ -76,17 +73,7 @@ public class UCSBSubjectController extends ApiController {
         ucsbSubject.setRelatedDeptCode(relatedDeptCode);
         ucsbSubject.setInactive(inactive);
         ucsbSubject.setId(id);
-        UCSBSubject savedUCSubject = UCSBSubjectRepository.save(ucsbSubject);
+        UCSBSubject savedUCSubject = ucsbSubjectRepository.save(ucsbSubject);
         return savedUCSubject;
-
-        
     }
-
-
-
-    
-
-
-    
-
 }
