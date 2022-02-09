@@ -43,7 +43,11 @@ public class CollegiateSubredditControllerTests extends ControllerTestCase {
 
     // Authorization tests for /api/CollegiateSubreddits/all
 
-
+    @Test
+    public void api_CollegiateSubreddits_all__logged_out__returns_403() throws Exception {
+        mockMvc.perform(get("/api/CollegiateSubreddits/all"))
+                .andExpect(status().is(403));
+    }
 
     @WithMockUser(roles = { "USER" })
     @Test
@@ -52,6 +56,12 @@ public class CollegiateSubredditControllerTests extends ControllerTestCase {
                 .andExpect(status().isOk());
     }
 
+
+    @Test
+    public void api_CollegiateSubreddits_post__logged_out__returns_403() throws Exception {
+        mockMvc.perform(post("/api/CollegiateSubreddits/post"))
+                .andExpect(status().is(403));
+    }
 
     // Tests with mocks for database actions on user
 
