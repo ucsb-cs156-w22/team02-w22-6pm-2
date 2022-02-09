@@ -42,37 +42,103 @@ public class UCSBRequirementController extends ApiController {
     @ApiOperation(value = "List all UCSB Requirements")
     @PreAuthorize("hasRole('ROLE_USER')")
     @GetMapping("/all")
-    public Iterable<UCSBRequirement> allUsersTodos() {
+    public Iterable<UCSBRequirement> allUCSBRequirements() {
         loggingService.logMethod();
         Iterable<UCSBRequirement> ucsbRequirement = ucsbRequirementRepository.findAll();
         return ucsbRequirement;
     }
 
-    @ApiOperation(value = "Create a new UCSB Requirement")
+    public class UCSBRequirementOrError {
+        Long id;
+        UCSBRequirement UCSBRequirement;
+        ResponseEntity<String> error;
+
+        public UCSBRequirementOrError(Long id) {
+            this.id = id;
+        }
+    }
+    public UCSBRequirementOrError DoesUCSBRequirementExist(UCSBRequirementOrError toe) {
+        Optional<UCSBRequirement> optionalUCSBRequirement = ucsbRequirementRepository.findById(toe.id);
+        if (optionalUCSBRequirement.isEmpty()) {
+            toe.error = ResponseEntity
+                    .badRequest()
+                    .body(String.format("UCSBRequirement with id %d not found", toe.id));
+        } else {
+            toe.UCSBRequirement = optionalUCSBRequirement.get();
+        }
+        return toe;
+    }
+    @ApiOperation(value = "Get a requirement")
+    @PreAuthorize("hasRole('ROLE_USER')")
+    @GetMapping("")
+    public ResponseEntity<String> getUCSBRequirement(
+        @ApiParam("id") @RequestParam Long id)
+            throws JsonProcessingException{
+        loggingService.logMethod();
+        
+        UCSBRequirementOrError toe = new UCSBRequirementOrError(id);
+        toe = DoesUCSBRequirementExist(toe);
+        if (toe.error != null) {
+            return toe.error;
+        }
+
+        String body = mapper.writeValueAsString(toe.UCSBRequirement);
+        return ResponseEntity.ok().body(body);
+
+    }
+    
+    
+    @ApiOperation(value = "Delete a UCSBRequirement")
+    @PreAuthorize("hasRole('ROLE_USER')")
+    @DeleteMapping("")
+    public ResponseEntity<String> deleteUCSBRequirement(
+            @ApiParam("id") @RequestParam Long id) {
+        loggingService.logMethod();
+
+        UCSBRequirementOrError moe = new UCSBRequirementOrError(id);
+
+        moe = DoesUCSBRequirementExist(moe);
+        if (moe.error != null) {
+            return moe.error;
+        }
+
+        
+        ucsbRequirementRepository.deleteById(id);
+        return ResponseEntity.ok().body(String.format("record %d deleted", id));
+
+    }
+    
+    @ApiOperation(value = "Create a new requirement")
     @PreAuthorize("hasRole('ROLE_USER')")
     @PostMapping("/post")
-    public UCSBRequirement postTodo(
-            @ApiParam("id") @RequestParam long id,
+    public UCSBRequirement postUCSBRequirement(
             @ApiParam("requirementCode") @RequestParam String requirementCode,
             @ApiParam("requirementTranslation") @RequestParam String requirementTranslation,
             @ApiParam("collegeCode") @RequestParam String collegeCode,
             @ApiParam("objCode") @RequestParam String objCode,
             @ApiParam("courseCount") @RequestParam int courseCount,
-            @ApiParam("units") @RequestParam int units,
-            @ApiParam("inactive") @RequestParam boolean inactive) {
-        loggingService.logMethod();
+            @ApiParam("inactive") @RequestParam boolean inactive,
+            @ApiParam("id") @RequestParam long id,
+            @ApiParam("units") @RequestParam int units) {
 
-        UCSBRequirement requirement = new UCSBRequirement();
-        requirement.setId(id);
-        requirement.setRequirementCode(requirementCode);
-        requirement.setRequirementTranslation(requirementTranslation);
-        requirement.setCollegeCode(collegeCode);
-        requirement.setObjCode(objCode);
-        requirement.setCourseCount(courseCount);
-        requirement.setUnits(units);
-        requirement.setInactive(inactive);
-        UCSBRequirement savedRequirements = ucsbRequirementRepository.save(requirement);
-        return savedRequirements;
+        loggingService.logMethod();
+        
+        log.info("requirementCode={}", requirementCode, "requirementTranslation={}", requirementTranslation, "collegeCode={}", collegeCode,
+          "objCode={}", objCode, "courseCount={}", courseCount, "inactive={}", inactive, "id={}", id, "units={}", units);
+
+        UCSBRequirement UCSBrequirement = new UCSBRequirement();
+        UCSBrequirement.setRequirementCode(requirementCode);
+        UCSBrequirement.setRequirementTranslation(requirementTranslation);
+        UCSBrequirement.setObjCode(objCode);
+        UCSBrequirement.setCollegeCode(collegeCode);
+        UCSBrequirement.setCourseCount(courseCount);
+        UCSBrequirement.setInactive(inactive);
+        UCSBrequirement.setId(id);
+        UCSBrequirement.setUnits(units);
+        UCSBRequirement savedUCrequirement = ucsbRequirementRepository.save(UCSBrequirement);
+        return savedUCrequirement;
+
+        
     }
 }
 
