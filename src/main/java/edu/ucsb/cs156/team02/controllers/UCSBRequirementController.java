@@ -132,46 +132,18 @@ public class UCSBRequirementController extends ApiController {
         return ResponseEntity.ok().body(String.format("record %d deleted", id));
 
     }
-    @ApiOperation(value = "Create a new Requirement")
+    
+    @ApiOperation(value = "Create a new requirement")
     @PreAuthorize("hasRole('ROLE_USER')")
     @PostMapping("/post")
     public UCSBRequirement postUCSBRequirement(
-            @ApiParam("subjectCode") @RequestParam String subjectCode,
-            @ApiParam("subjectTranslation") @RequestParam String subjectTranslation,
-            @ApiParam("deptCode") @RequestParam String deptCode,
-            @ApiParam("collegeCode") @RequestParam String collegeCode,
-            @ApiParam("relatedDeptCode") @RequestParam String relatedDeptCode,
-            @ApiParam("inactive") @RequestParam boolean inactive,
-            @ApiParam("id") @RequestParam long id) {
-        loggingService.logMethod();
-        
-        log.info("subjectCode={}", subjectCode, "subjectTranslation={}", subjectTranslation, "deptCode={}", deptCode,
-         "collegeCode={}", collegeCode, "relatedDeptCode={}", relatedDeptCode, "inactive={}", inactive, "id={}", id);
-
-        UCSBSubject ucsbSubject = new UCSBSubject();
-        ucsbSubject.setSubjectCode(subjectCode);
-        ucsbSubject.setSubjectTranslation(subjectTranslation);
-        ucsbSubject.setDeptCode(deptCode);
-        ucsbSubject.setCollegeCode(collegeCode);
-        ucsbSubject.setRelatedDeptCode(relatedDeptCode);
-        ucsbSubject.setInactive(inactive);
-        ucsbSubject.setId(id);
-        UCSBSubject savedUCSubject = ucsbSubjectRepository.save(ucsbSubject);
-        return savedUCSubject;
-
-        
-    }
-    /*@ApiOperation(value = "Create a new requirement")
-    @PreAuthorize("hasRole('ROLE_USER')")
-    @PostMapping("/post")
-    public UCSBrequirement postUCSBrequirement(
             @ApiParam("requirementCode") @RequestParam String requirementCode,
             @ApiParam("requirementTranslation") @RequestParam String requirementTranslation,
-            @ApiParam("collegeCode") @RequestParam String deptCode,
-            @ApiParam("objCode") @RequestParam String collegeCode,
-            @ApiParam("courseCount") @RequestParam long, courseCount,
+            @ApiParam("collegeCode") @RequestParam String collegeCode,
+            @ApiParam("objCode") @RequestParam String objCode,
+            @ApiParam("courseCount") @RequestParam long courseCount,
             @ApiParam("inactive") @RequestParam boolean inactive,
-            @ApiParam("id") @RequestParam long id
+            @ApiParam("id") @RequestParam long id,
             @ApiParam("units") @RequestParam long units) {
 
         loggingService.logMethod();
@@ -179,18 +151,19 @@ public class UCSBRequirementController extends ApiController {
         log.info("requirementCode={}", requirementCode, "requirementTranslation={}", requirementTranslation, "collegeCode={}", collegeCode,
           "objCode={}", objCode, "courseCount={}", courseCount, "inactive={}", inactive, "id={}", id, "units={}", units);
 
-        UCSBrequirement ucsbrequirement = new UCSBrequirement();
-        ucsbrequirement.setrequirementCode(requirementCode);
-        ucsbrequirement.setrequirementTranslation(requirementTranslation);
-        ucsbrequirement.setDeptCode(deptCode);
-        ucsbrequirement.setCollegeCode(collegeCode);
-        ucsbrequirement.setRelatedDeptCode(relatedDeptCode);
-        ucsbrequirement.setInactive(inactive);
-        ucsbrequirement.setId(id);
-        UCSBrequirement savedUCrequirement = ucsbrequirementRepository.save(ucsbrequirement);
+        UCSBRequirement UCSBrequirement = new UCSBRequirement();
+        UCSBrequirement.setrequirementCode(requirementCode);
+        UCSBrequirement.setrequirementTranslation(requirementTranslation);
+        UCSBrequirement.setobjCode(objCode);
+        UCSBrequirement.setCollegeCode(collegeCode);
+        UCSBrequirement.setcourseCount(courseCount);
+        UCSBrequirement.setInactive(inactive);
+        UCSBrequirement.setId(id);
+        UCSBrequirement.setUnits(units);
+        UCSBRequirement savedUCrequirement = UCSBRequirementRepository.save(UCSBrequirement);
         return savedUCrequirement;
 
         
-    }*/
+    }
 }
 
