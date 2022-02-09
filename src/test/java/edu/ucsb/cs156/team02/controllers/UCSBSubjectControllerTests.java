@@ -389,7 +389,7 @@ public class UCSBSubjectControllerTests extends ControllerTestCase {
 
         // act
         MvcResult response = mockMvc.perform(
-                delete("/api/UCSBSubjects/admin?id=17")
+                delete("/api/UCSBSubjects?id=17")
                         .with(csrf()))
                 .andExpect(status().isBadRequest()).andReturn();
 

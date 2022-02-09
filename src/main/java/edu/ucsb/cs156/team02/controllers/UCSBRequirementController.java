@@ -42,7 +42,7 @@ public class UCSBRequirementController extends ApiController {
     @ApiOperation(value = "List all UCSB Requirements")
     @PreAuthorize("hasRole('ROLE_USER')")
     @GetMapping("/all")
-    public Iterable<UCSBRequirement> allUsersTodos() {
+    public Iterable<UCSBRequirement> allUCSBRequirements() {
         loggingService.logMethod();
         Iterable<UCSBRequirement> ucsbRequirement = ucsbRequirementRepository.findAll();
         return ucsbRequirement;
@@ -51,7 +51,7 @@ public class UCSBRequirementController extends ApiController {
     @ApiOperation(value = "Create a new UCSB Requirement")
     @PreAuthorize("hasRole('ROLE_USER')")
     @PostMapping("/post")
-    public UCSBRequirement postTodo(
+    public UCSBRequirement postUCSBRequirement(
             @ApiParam("id") @RequestParam long id,
             @ApiParam("requirementCode") @RequestParam String requirementCode,
             @ApiParam("requirementTranslation") @RequestParam String requirementTranslation,
