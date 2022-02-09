@@ -48,32 +48,6 @@ public class UCSBRequirementController extends ApiController {
         return ucsbRequirement;
     }
 
-    @ApiOperation(value = "Create a new UCSB Requirement")
-    @PreAuthorize("hasRole('ROLE_USER')")
-    @PostMapping("/post")
-    public UCSBRequirement postUCSBRequirement(
-            @ApiParam("id") @RequestParam long id,
-            @ApiParam("requirementCode") @RequestParam String requirementCode,
-            @ApiParam("requirementTranslation") @RequestParam String requirementTranslation,
-            @ApiParam("collegeCode") @RequestParam String collegeCode,
-            @ApiParam("objCode") @RequestParam String objCode,
-            @ApiParam("courseCount") @RequestParam int courseCount,
-            @ApiParam("units") @RequestParam int units,
-            @ApiParam("inactive") @RequestParam boolean inactive) {
-        loggingService.logMethod();
-
-        UCSBRequirement requirement = new UCSBRequirement();
-        requirement.setId(id);
-        requirement.setRequirementCode(requirementCode);
-        requirement.setRequirementTranslation(requirementTranslation);
-        requirement.setCollegeCode(collegeCode);
-        requirement.setObjCode(objCode);
-        requirement.setCourseCount(courseCount);
-        requirement.setUnits(units);
-        requirement.setInactive(inactive);
-        UCSBRequirement savedRequirements = ucsbRequirementRepository.save(requirement);
-        return savedRequirements;
-    }
     public class UCSBRequirementOrError {
         Long id;
         UCSBRequirement UCSBRequirement;
@@ -101,17 +75,7 @@ public class UCSBRequirementController extends ApiController {
         return ResponseEntity.ok().body(body);
 
     }
-    public UCSBRequirementOrError DoesUCSBRequirementExist(UCSBRequirementOrError toe) {
-        Optional<UCSBRequirement> optionalUCSBRequirement = UCSBRequirementRepository.findById(toe.id);
-        if (optionalUCSBRequirement.isEmpty()) {
-            toe.error = ResponseEntity
-                    .badRequest()
-                    .body(String.format("UCSBRequirement with id %d not found", toe.id));
-        } else {
-            toe.UCSBRequirement = optionalUCSBRequirement.get();
-        }
-        return toe;
-    }
+    
     
     @ApiOperation(value = "Delete a UCSBRequirement")
     @PreAuthorize("hasRole('ROLE_USER')")
@@ -122,17 +86,27 @@ public class UCSBRequirementController extends ApiController {
 
         UCSBRequirementOrError moe = new UCSBRequirementOrError(id);
 
-        moe = doesUCSBRequirementExist(soe);
+        moe = doesUCSBRequirementExist(moe);
         if (moe.error != null) {
             return moe.error;
         }
 
         
-        UCSBRequirementRepository.deleteById(id);
+        ucsbRequirementRepository.deleteById(id);
         return ResponseEntity.ok().body(String.format("record %d deleted", id));
 
     }
-    
+    public UCSBRequirementOrError DoesUCSBRequirementExist(UCSBRequirementOrError toe) {
+        Optional<UCSBRequirement> optionalUCSBRequirement = ucsbRequirementRepository.findById(toe.id);
+        if (optionalUCSBRequirement.isEmpty()) {
+            toe.error = ResponseEntity
+                    .badRequest()
+                    .body(String.format("UCSBRequirement with id %d not found", toe.id));
+        } else {
+            toe.UCSBRequirement = optionalUCSBRequirement.get();
+        }
+        return toe;
+    }
     @ApiOperation(value = "Create a new requirement")
     @PreAuthorize("hasRole('ROLE_USER')")
     @PostMapping("/post")
@@ -141,10 +115,10 @@ public class UCSBRequirementController extends ApiController {
             @ApiParam("requirementTranslation") @RequestParam String requirementTranslation,
             @ApiParam("collegeCode") @RequestParam String collegeCode,
             @ApiParam("objCode") @RequestParam String objCode,
-            @ApiParam("courseCount") @RequestParam long courseCount,
+            @ApiParam("courseCount") @RequestParam int courseCount,
             @ApiParam("inactive") @RequestParam boolean inactive,
             @ApiParam("id") @RequestParam long id,
-            @ApiParam("units") @RequestParam long units) {
+            @ApiParam("units") @RequestParam int units) {
 
         loggingService.logMethod();
         
@@ -152,15 +126,15 @@ public class UCSBRequirementController extends ApiController {
           "objCode={}", objCode, "courseCount={}", courseCount, "inactive={}", inactive, "id={}", id, "units={}", units);
 
         UCSBRequirement UCSBrequirement = new UCSBRequirement();
-        UCSBrequirement.setrequirementCode(requirementCode);
-        UCSBrequirement.setrequirementTranslation(requirementTranslation);
-        UCSBrequirement.setobjCode(objCode);
+        UCSBrequirement.setRequirementCode(requirementCode);
+        UCSBrequirement.setRequirementTranslation(requirementTranslation);
+        UCSBrequirement.setObjCode(objCode);
         UCSBrequirement.setCollegeCode(collegeCode);
-        UCSBrequirement.setcourseCount(courseCount);
+        UCSBrequirement.setCourseCount(courseCount);
         UCSBrequirement.setInactive(inactive);
         UCSBrequirement.setId(id);
         UCSBrequirement.setUnits(units);
-        UCSBRequirement savedUCrequirement = UCSBRequirementRepository.save(UCSBrequirement);
+        UCSBRequirement savedUCrequirement = ucsbRequirementRepository.save(UCSBrequirement);
         return savedUCrequirement;
 
         
