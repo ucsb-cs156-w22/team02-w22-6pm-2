@@ -33,6 +33,16 @@ import java.util.Optional;
 @Slf4j
 public class UCSBSubjectController extends ApiController {
 
+    public class UCSBSubjectOrError {
+        Long id;
+        UCSBSubject ucsbSubject;
+        ResponseEntity<String> error;
+
+        public UCSBSubjectOrError(Long id) {
+            this.id = id;
+        }
+    }
+
     @Autowired
     UCSBSubjectRepository ucsbSubjectRepository;
 
@@ -46,6 +56,28 @@ public class UCSBSubjectController extends ApiController {
         loggingService.logMethod();
         Iterable<UCSBSubject> ucsbSubject = ucsbSubjectRepository.findAll();
         return ucsbSubject;
+    }
+
+    @ApiOperation(value = "Get a single subject (if it belongs to current user)")
+    @PreAuthorize("hasRole('ROLE_USER')")
+    @GetMapping("")
+    public ResponseEntity<String> getUCSBSubjectById(
+            @ApiParam("id") @RequestParam Long id) throws JsonProcessingException {
+        loggingService.logMethod();
+        UCSBSubjectOrError uoe = new UCSBSubjectOrError(id);
+
+        uoe = doesUCSBSubjectExist(uoe);
+        if (uoe.error != null) {
+            return uoe.error;
+        }
+        /*
+        uoe = doesUCSBSubjectBelongToCurrentUser(uoe);
+        if (uoe.error != null) {
+            return uoe.error;
+        }
+        */
+        String body = mapper.writeValueAsString(uoe.ucsbSubject);
+        return ResponseEntity.ok().body(body);
     }
 
 
@@ -76,4 +108,37 @@ public class UCSBSubjectController extends ApiController {
         UCSBSubject savedUCSubject = ucsbSubjectRepository.save(ucsbSubject);
         return savedUCSubject;
     }
+
+    public UCSBSubjectOrError doesUCSBSubjectExist(UCSBSubjectOrError uoe) {
+
+        Optional<UCSBSubject> optionalUCSBSubject = ucsbSubjectRepository.findById(uoe.id);
+
+        if (optionalUCSBSubject.isEmpty()) {
+            uoe.error = ResponseEntity
+                    .badRequest()
+                    .body(String.format("id %d not found", uoe.id));
+        } else {
+            uoe.ucsbSubject = optionalUCSBSubject.get();
+        }
+        return uoe;
+    }
+
+    /*
+    public UCSBSubjectOrError doesUCSBSubjectBelongToCurrentUser(UCSBSubjectOrError uoe) {
+        CurrentUser currentUser = getCurrentUser();
+        log.info("currentUser={}", currentUser);
+
+        Long currentUserId = currentUser.getUser().getId();
+        Long ucsbSubjectUserId = uoe.ucsbSubject.getUser().getId();
+        log.info("currentUserId={} ucsbSubjectUserId={}", currentUserId, ucsbSubjectUserId);
+
+        if (ucsbSubjectUserId != currentUserId) {
+            uoe.error = ResponseEntity
+                    .badRequest()
+                    .body(String.format("ucsbSubject with id %d not found", uoe.id));
+        }
+        return uoe;
+    }
+    */
+
 }
