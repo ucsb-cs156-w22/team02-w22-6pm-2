@@ -87,6 +87,36 @@ public class UCSBRequirementController extends ApiController {
 
     }
     
+    @ApiOperation(value = "Update a single requirement")
+    @PreAuthorize("hasRole('ROLE_USER')")
+    @PutMapping("")
+    public ResponseEntity<String> putUCSBRequirementtById(
+        @ApiParam("id") @RequestParam Long id,
+        @RequestBody @Valid UCSBRequirement incomingUCSBRequirement) throws JsonProcessingException {
+            loggingService.logMethod();
+            
+            UCSBRequirementOrError coe = new UCSBRequirementOrError(id);
+            
+            coe = DoesUCSBRequirementExist(coe);
+            if (coe.error != null) {
+                return coe.error;
+            }
+        UCSBRequirement oldRequirement = coe.UCSBRequirement;
+        oldRequirement.setRequirementCode(incomingUCSBRequirement.getRequirementCode());
+        oldRequirement.setRequirementTranslation(incomingUCSBRequirement.getRequirementTranslation());
+        oldRequirement.setObjCode(incomingUCSBRequirement.getObjCode());
+        oldRequirement.setCollegeCode(incomingUCSBRequirement.getCollegeCode());
+        oldRequirement.setCourseCount(incomingUCSBRequirement.getCourseCount());
+        oldRequirement.setInactive(incomingUCSBRequirement.isInactive());
+        oldRequirement.setId(incomingUCSBRequirement.getId());
+        oldRequirement.setUnits(incomingUCSBRequirement.getUnits());
+        
+        ucsbRequirementRepository.save(oldRequirement);
+        
+        String body = mapper.writeValueAsString(oldRequirement);
+        return ResponseEntity.ok().body(body);
+    }
+
     
     @ApiOperation(value = "Delete a UCSBRequirement")
     @PreAuthorize("hasRole('ROLE_USER')")
