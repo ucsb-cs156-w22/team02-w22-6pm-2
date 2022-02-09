@@ -33,6 +33,15 @@ import java.util.Optional;
 @Slf4j
 public class CollegiateSubredditController extends ApiController {
 
+    public class CollegiateSubredditOrError {
+        Long id;
+        CollegiateSubreddit subreddit;
+        ResponseEntity<String> error;
+
+        public CollegiateSubredditOrError(Long id) {
+            this.id = id;
+        }
+    }
     
 
     @Autowired
@@ -42,7 +51,7 @@ public class CollegiateSubredditController extends ApiController {
     ObjectMapper mapper;
 
     @ApiOperation(value = "List all CollegiateSubreddits")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_USER')")
     @GetMapping("/all")
     public Iterable<CollegiateSubreddit> allCollegiateSubreddits() {
         loggingService.logMethod();
@@ -57,28 +66,100 @@ public class CollegiateSubredditController extends ApiController {
     public CollegiateSubreddit postCollegiateSubreddit(
             @ApiParam("name") @RequestParam String name,
             @ApiParam("location") @RequestParam String location,
-            @ApiParam("subreddit") @RequestParam String subreddit,
-            @ApiParam("id") @RequestParam long id) {
+            @ApiParam("subreddit") @RequestParam String subreddit) {
         loggingService.logMethod();
         
-        log.info("name={}", name, "location={}", location, "subreddit={}", subreddit, "id={}", id);
+        log.info("name={}", name, "location={}", location, "subreddit={}", subreddit);
 
         CollegiateSubreddit CollegiateSubreddit = new CollegiateSubreddit();
         CollegiateSubreddit.setName(name);
         CollegiateSubreddit.setLocation(location);
         CollegiateSubreddit.setSubreddit(subreddit);
-        CollegiateSubreddit.setId(id);
         CollegiateSubreddit savedCollegiateSubreddit = CollegiateSubredditRepository.save(CollegiateSubreddit);
         return savedCollegiateSubreddit;
-
-        
+ 
     }
 
 
+    @ApiOperation(value = "Get a single subreddit by ID")
+    //@PreAuthorize("hasRole('ROLE_USER')")
+    @GetMapping("")
+    public ResponseEntity<String> getCollegiateSubredditById(
+            @ApiParam("id") @RequestParam Long id) throws JsonProcessingException {
+        loggingService.logMethod();
+        CollegiateSubredditOrError toe = new CollegiateSubredditOrError(id);
+
+        toe = doesCollegiateSubredditExist(toe);
+        if (toe.error != null) {
+            return toe.error;
+        }
+        
+        String body = mapper.writeValueAsString(toe.subreddit);
+        return ResponseEntity.ok().body(body);
+    }
 
     
-
-
+    @ApiOperation(value = "Update a single subreddit")
+    @PreAuthorize("hasRole('ROLE_USER')")
+    @PutMapping("")
+    public ResponseEntity<String> putCollegiateSubredditById(
+        @ApiParam("id") @RequestParam Long id,
+        @RequestBody @Valid CollegiateSubreddit incomingCollegiateSubreddit) throws JsonProcessingException {
+            loggingService.logMethod();
+            
+            CollegiateSubredditOrError coe = new CollegiateSubredditOrError(id);
+            
+            coe = doesCollegiateSubredditExist(coe);
+            if (coe.error != null) {
+                return coe.error;
+            }
+        CollegiateSubreddit oldSubreddit = coe.subreddit;
+        oldSubreddit.setName(incomingCollegiateSubreddit.getName());
+        oldSubreddit.setLocation(incomingCollegiateSubreddit.getLocation());
+        oldSubreddit.setSubreddit(incomingCollegiateSubreddit.getSubreddit());
+        
+        CollegiateSubredditRepository.save(oldSubreddit);
+        
+        String body = mapper.writeValueAsString(oldSubreddit);
+        return ResponseEntity.ok().body(body);
+    }
     
-
-}
+    
+    @ApiOperation(value = "Delete a subreddit by ID")
+    @PreAuthorize("hasRole('ROLE_USER')")
+    @DeleteMapping("")
+    public ResponseEntity<String> deleteCollegiateSubreddit(
+        @ApiParam("id") @RequestParam Long id) {
+            loggingService.logMethod();
+            
+            CollegiateSubredditOrError soe = new CollegiateSubredditOrError(id);
+            
+            soe = doesCollegiateSubredditExist(soe);
+            if (soe.error != null) {
+                return soe.error;
+            }
+            
+            CollegiateSubredditRepository.deleteById(id);
+            return ResponseEntity.ok().body(String.format("subreddit with id %d deleted", id));
+        }
+        
+        
+    public CollegiateSubredditOrError doesCollegiateSubredditExist(CollegiateSubredditOrError toe) {
+    
+        Optional<CollegiateSubreddit> optionalReq = CollegiateSubredditRepository.findById(toe.id);
+    
+        if (optionalReq.isEmpty()) {
+            toe.error = ResponseEntity
+                    .badRequest()
+                    .body(String.format("subreddit with id %d not found", toe.id));
+        } else {
+            toe.subreddit = optionalReq.get();
+        }
+        return toe;
+    }
+        
+        
+        
+        
+        
+    }
