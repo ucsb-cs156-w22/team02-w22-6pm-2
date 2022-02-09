@@ -74,5 +74,44 @@ public class UCSBRequirementController extends ApiController {
         UCSBRequirement savedRequirements = ucsbRequirementRepository.save(requirement);
         return savedRequirements;
     }
+    public class UCSBRequirementOrError {
+        Long id;
+        UCSBRequirement UCSBRequirement;
+        ResponseEntity<String> error;
+
+        public UCSBRequirementOrError(Long id) {
+            this.id = id;
+        }
+    }
+    @ApiOperation(value = "Get a requirement")
+    @PreAuthorize("hasRole('ROLE_USER')")
+    @GetMapping("")
+    public ResponseEntity<String> getUCSBRequirement(
+        @ApiParam("id") @RequestParam Long id)
+            throws JsonProcessingException{
+        loggingService.logMethod();
+        
+        UCSBRequirementOrError toe = new UCSBRequirementOrError(id);
+        toe = DoesUCSBRequirementExist(toe);
+        if (toe.error != null) {
+            return toe.error;
+        }
+
+        String body = mapper.writeValueAsString(toe.UCSBRequirement);
+        return ResponseEntity.ok().body(body);
+
+    }
+    public UCSBRequirementOrError DoesUCSBRequirementExist(UCSBRequirementOrError toe) {
+        Optional<UCSBRequirement> optionalUCSBRequirement = UCSBRequirementRepository.findById(toe.id);
+        if (optionalUCSBRequirement.isEmpty()) {
+            toe.error = ResponseEntity
+                    .badRequest()
+                    .body(String.format("UCSBRequirement with id %d not found", toe.id));
+        } else {
+            toe.UCSBRequirement = optionalUCSBRequirement.get();
+        }
+        return toe;
+    }
+
 }
 
