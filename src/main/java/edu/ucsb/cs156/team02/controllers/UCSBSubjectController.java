@@ -76,7 +76,7 @@ public class UCSBSubjectController extends ApiController {
         return soe;
     }
 
-    @ApiOperation(value = "Get a single UCSBSubject with id 123")
+    @ApiOperation(value = "Get a single UCSBSubject with id")
     @PreAuthorize("hasRole('ROLE_USER')")
     @GetMapping("")
     public ResponseEntity<String> getUCSBSubjectById(
