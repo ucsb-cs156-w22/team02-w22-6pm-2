@@ -37,7 +37,7 @@ public class UCSBSubjectController extends ApiController {
     
 
     @Autowired
-    UCSBSubjectRepository UCSBSubjectRepository;
+    UCSBSubjectRepository ucsbSubjectRepository;
 
     @Autowired
     ObjectMapper mapper;
@@ -47,9 +47,53 @@ public class UCSBSubjectController extends ApiController {
     @GetMapping("/all")
     public Iterable<UCSBSubject> allUCSBSubjects() {
         loggingService.logMethod();
-        Iterable<UCSBSubject> ucsbSubject = UCSBSubjectRepository.findAll();
+        Iterable<UCSBSubject> ucsbSubject = ucsbSubjectRepository.findAll();
         return ucsbSubject;
     }
+
+
+    public class UCSBSubjectOrError {
+        Long id;
+        UCSBSubject ucsbSubject;
+        ResponseEntity<String> error;
+
+        public UCSBSubjectOrError(Long id) {
+            this.id = id;
+        }
+    }
+
+    public UCSBSubjectOrError doesUCSBSubjectExist(UCSBSubjectOrError soe) {
+
+        Optional<UCSBSubject> optionalUCSBSubject = ucsbSubjectRepository.findById(soe.id);
+
+        if (optionalUCSBSubject.isEmpty()) {
+            soe.error = ResponseEntity
+                    .badRequest()
+                    .body(String.format("UCSBSubject with id %d not found", soe.id));
+        } else {
+            soe.ucsbSubject = optionalUCSBSubject.get();
+        }
+        return soe;
+    }
+
+    @ApiOperation(value = "Get a single UCSBSubject with id 123")
+    @PreAuthorize("hasRole('ROLE_USER')")
+    @GetMapping("")
+    public ResponseEntity<String> getUCSBSubjectById(
+            @ApiParam("id") @RequestParam Long id) throws JsonProcessingException {
+        loggingService.logMethod();
+        UCSBSubjectOrError soe = new UCSBSubjectOrError(id);
+
+        soe = doesUCSBSubjectExist(soe);
+        if (soe.error != null) {
+            return soe.error;
+        }
+        
+        String body = mapper.writeValueAsString(soe.ucsbSubject);
+        return ResponseEntity.ok().body(body);
+    }
+
+
 
 
     @ApiOperation(value = "Create a new Subject")
@@ -76,7 +120,7 @@ public class UCSBSubjectController extends ApiController {
         ucsbSubject.setRelatedDeptCode(relatedDeptCode);
         ucsbSubject.setInactive(inactive);
         ucsbSubject.setId(id);
-        UCSBSubject savedUCSubject = UCSBSubjectRepository.save(ucsbSubject);
+        UCSBSubject savedUCSubject = ucsbSubjectRepository.save(ucsbSubject);
         return savedUCSubject;
 
         
