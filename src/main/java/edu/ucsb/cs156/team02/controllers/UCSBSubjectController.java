@@ -1,10 +1,10 @@
 package edu.ucsb.cs156.team02.controllers;
 
-import edu.ucsb.cs156.team02.entities.UCSBSubject;
+import edu.ucsb.cs156.team02.entities.UCSBrequirement;
 import edu.ucsb.cs156.team02.entities.User;
 import edu.ucsb.cs156.team02.models.CurrentUser;
 import edu.ucsb.cs156.team02.repositories.TodoRepository;
-import edu.ucsb.cs156.team02.repositories.UCSBSubjectRepository;
+import edu.ucsb.cs156.team02.repositories.UCSBrequirementRepository;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -28,28 +28,88 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 import java.util.Optional;
 
-@Api(description = "UCSB Subjects")
-@RequestMapping("/api/UCSBSubjects")
+@Api(description = "UCSB requirements")
+@RequestMapping("/api/UCSBrequirements")
 @RestController
 @Slf4j
-public class UCSBSubjectController extends ApiController {
+public class UCSBrequirementController extends ApiController {
 
     
 
     @Autowired
-    UCSBSubjectRepository UCSBSubjectRepository;
+    UCSBrequirementRepository ucsbrequirementRepository;
 
     @Autowired
     ObjectMapper mapper;
 
-    @ApiOperation(value = "List all subjects")
+    @ApiOperation(value = "List all requirements")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/all")
-    public Iterable<UCSBSubject> allUCSBSubjects() {
+    public Iterable<UCSBrequirement> allUCSBrequirements() {
         loggingService.logMethod();
-        Iterable<UCSBSubject> ucsbSubject = UCSBSubjectRepository.findAll();
-        return ucsbSubject;
+        Iterable<UCSBrequirement> ucsbrequirement = ucsbrequirementRepository.findAll();
+        return ucsbrequirement;
     }
+
+
+    public class UCSBrequirementOrError {
+        Long id;
+        UCSBrequirement ucsbrequirement;
+        ResponseEntity<String> error;
+
+        public UCSBrequirementOrError(Long id) {
+            this.id = id;
+        }
+    }
+
+    public UCSBrequirementOrError doesUCSBrequirementExist(UCSBrequirementOrError soe) {
+
+        Optional<UCSBrequirement> optionalUCSBrequirement = ucsbrequirementRepository.findById(soe.id);
+
+        if (optionalUCSBrequirement.isEmpty()) {
+            soe.error = ResponseEntity
+                    .badRequest()
+                    .body(String.format("id %d not found", soe.id));
+        } else {
+            soe.ucsbrequirement = optionalUCSBrequirement.get();
+        }
+        return soe;
+    }
+
+
+
+    public UCSBrequirementOrError doesUCSBrequirementExist2(UCSBrequirementOrError soe) {
+
+        Optional<UCSBrequirement> optionalUCSBrequirement = ucsbrequirementRepository.findById(soe.id);
+
+        if (optionalUCSBrequirement.isEmpty()) {
+            soe.error = ResponseEntity
+                    .badRequest()
+                    .body(String.format("record %d not found", soe.id));
+        } else {
+            soe.ucsbrequirement = optionalUCSBrequirement.get();
+        }
+        return soe;
+    }
+
+    @ApiOperation(value = "Get a single UCSBrequirement with id")
+    @PreAuthorize("hasRole('ROLE_USER')")
+    @GetMapping("")
+    public ResponseEntity<String> getUCSBrequirementById(
+            @ApiParam("id") @RequestParam Long id) throws JsonProcessingException {
+        loggingService.logMethod();
+        UCSBrequirementOrError soe = new UCSBrequirementOrError(id);
+
+        soe = doesUCSBrequirementExist(soe);
+        if (soe.error != null) {
+            return soe.error;
+        }
+        
+        String body = mapper.writeValueAsString(soe.ucsbrequirement);
+        return ResponseEntity.ok().body(body);
+    }
+
+
 
 
     @ApiOperation(value = "Create a new Subject")
@@ -76,11 +136,37 @@ public class UCSBSubjectController extends ApiController {
         ucsbSubject.setRelatedDeptCode(relatedDeptCode);
         ucsbSubject.setInactive(inactive);
         ucsbSubject.setId(id);
-        UCSBSubject savedUCSubject = UCSBSubjectRepository.save(ucsbSubject);
+        UCSBSubject savedUCSubject = ucsbSubjectRepository.save(ucsbSubject);
         return savedUCSubject;
 
         
     }
+
+
+    @ApiOperation(value = "Delete a UCSBSubject")
+    @PreAuthorize("hasRole('ROLE_USER')")
+    @DeleteMapping("")
+    public ResponseEntity<String> deleteTodo(
+            @ApiParam("id") @RequestParam Long id) {
+        loggingService.logMethod();
+
+        UCSBSubjectOrError soe = new UCSBSubjectOrError(id);
+
+        soe = doesUCSBSubjectExist2(soe);
+        if (soe.error != null) {
+            return soe.error;
+        }
+
+        
+        ucsbSubjectRepository.deleteById(id);
+        return ResponseEntity.ok().body(String.format("record %d deleted", id));
+
+    }
+    
+
+
+    
+
 
 
 
