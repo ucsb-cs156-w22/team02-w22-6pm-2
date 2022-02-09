@@ -57,6 +57,17 @@ public class UCSBRequirementController extends ApiController {
             this.id = id;
         }
     }
+    public UCSBRequirementOrError DoesUCSBRequirementExist(UCSBRequirementOrError toe) {
+        Optional<UCSBRequirement> optionalUCSBRequirement = ucsbRequirementRepository.findById(toe.id);
+        if (optionalUCSBRequirement.isEmpty()) {
+            toe.error = ResponseEntity
+                    .badRequest()
+                    .body(String.format("UCSBRequirement with id %d not found", toe.id));
+        } else {
+            toe.UCSBRequirement = optionalUCSBRequirement.get();
+        }
+        return toe;
+    }
     @ApiOperation(value = "Get a requirement")
     @PreAuthorize("hasRole('ROLE_USER')")
     @GetMapping("")
@@ -86,7 +97,7 @@ public class UCSBRequirementController extends ApiController {
 
         UCSBRequirementOrError moe = new UCSBRequirementOrError(id);
 
-        moe = doesUCSBRequirementExist(moe);
+        moe = DoesUCSBRequirementExist(moe);
         if (moe.error != null) {
             return moe.error;
         }
@@ -96,17 +107,7 @@ public class UCSBRequirementController extends ApiController {
         return ResponseEntity.ok().body(String.format("record %d deleted", id));
 
     }
-    public UCSBRequirementOrError DoesUCSBRequirementExist(UCSBRequirementOrError toe) {
-        Optional<UCSBRequirement> optionalUCSBRequirement = ucsbRequirementRepository.findById(toe.id);
-        if (optionalUCSBRequirement.isEmpty()) {
-            toe.error = ResponseEntity
-                    .badRequest()
-                    .body(String.format("UCSBRequirement with id %d not found", toe.id));
-        } else {
-            toe.UCSBRequirement = optionalUCSBRequirement.get();
-        }
-        return toe;
-    }
+    
     @ApiOperation(value = "Create a new requirement")
     @PreAuthorize("hasRole('ROLE_USER')")
     @PostMapping("/post")
