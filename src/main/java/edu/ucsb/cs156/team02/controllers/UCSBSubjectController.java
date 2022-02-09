@@ -69,7 +69,7 @@ public class UCSBSubjectController extends ApiController {
         if (optionalUCSBSubject.isEmpty()) {
             soe.error = ResponseEntity
                     .badRequest()
-                    .body(String.format("UCSBSubject with id %d not found", soe.id));
+                    .body(String.format("id %d not found", soe.id));
         } else {
             soe.ucsbSubject = optionalUCSBSubject.get();
         }
