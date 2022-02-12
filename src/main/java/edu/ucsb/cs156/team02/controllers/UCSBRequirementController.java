@@ -134,7 +134,7 @@ public class UCSBRequirementController extends ApiController {
 
         
         ucsbRequirementRepository.deleteById(id);
-        return ResponseEntity.ok().body(String.format("record %d deleted", id));
+        return ResponseEntity.ok().body(String.format("UCSBRequirement with id %d deleted", id));
 
     }
     
