@@ -148,13 +148,9 @@ public class UCSBRequirementController extends ApiController {
             @ApiParam("objCode") @RequestParam String objCode,
             @ApiParam("courseCount") @RequestParam int courseCount,
             @ApiParam("inactive") @RequestParam boolean inactive,
-            @ApiParam("id") @RequestParam long id,
             @ApiParam("units") @RequestParam int units) {
 
         loggingService.logMethod();
-        
-        log.info("requirementCode={}", requirementCode, "requirementTranslation={}", requirementTranslation, "collegeCode={}", collegeCode,
-          "objCode={}", objCode, "courseCount={}", courseCount, "inactive={}", inactive, "id={}", id, "units={}", units);
 
         UCSBRequirement UCSBrequirement = new UCSBRequirement();
         UCSBrequirement.setRequirementCode(requirementCode);
@@ -163,7 +159,6 @@ public class UCSBRequirementController extends ApiController {
         UCSBrequirement.setCollegeCode(collegeCode);
         UCSBrequirement.setCourseCount(courseCount);
         UCSBrequirement.setInactive(inactive);
-        UCSBrequirement.setId(id);
         UCSBrequirement.setUnits(units);
         UCSBRequirement savedUCrequirement = ucsbRequirementRepository.save(UCSBrequirement);
         return savedUCrequirement;
